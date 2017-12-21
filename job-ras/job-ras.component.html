@@ -1,0 +1,164 @@
+﻿<div *ngIf="ras">
+    <form class="pwc-forms" #rasForm="ngForm">
+        <div class="subnav" *ngIf="ras.Permission.Edit">
+            <ul>
+                <li><button type="button" [disabled]="isInSaving || (!rasForm.form.valid && ras.Required)" (click)="save()" class="btn btn--secondary btn--transparent">Save</button></li>
+                <li><button type="button" (click)="cancel()"  class="btn btn--secondary btn--transparent">Cancel</button></li>
+            </ul>
+            <div class="row">
+                <div class="col-sm-2">
+                    <label>RAS required</label>
+                </div>
+                <div class="col-sm-4">
+                    <input type="checkbox" [(ngModel)]="ras.Required" name="required" [disabled]="!ras.Permission.Edit">
+                </div>
+            </div>
+        </div>
+        <div [hidden]="ras.Required">
+            <div class="row columns">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label>RAS Partner</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div>
+                            <input type="text" [disabled]="true" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 tar">Last Worked FY</label>
+                        <div class='col-sm-6'>
+                            <input type="text" [disabled]="true" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 tar">Worked Years</label>
+                        <div class='col-sm-6'>
+                            <input type="text" [disabled]="true" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label>RAS Manager</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div>
+                            <input type="text" [disabled]="true" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 tar">Last Worked FY</label>
+                        <div class='col-sm-6'>
+                            <input type="text" [disabled]="true" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 tar">Worked Years</label>
+                        <div class='col-sm-6'>
+                            <input type="text" [disabled]="true" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Scope of RAS work</label>
+                    <div class='col-sm-10'>
+                        <input [disabled]="true" type="text" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div [hidden]="!ras.Required">
+            <div class="row columns">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label>RAS Partner</label>
+                    </div>
+                    <div class="col-sm-4 with-clear-button">
+                        <div [ngClass]="{'has-error': !rasPartnerControl.valid, 'has-success': rasPartnerControl.valid && rasPartnerControl.touched}">
+                            <input class="form-control" 
+                                   name="rasPartnerControl" 
+                                   placeholder="Enter Partner Name"
+                                   required
+                                   auto-complete 
+                                   list-formatter="Name" 
+                                   display-property-name="Name" 
+                                   [source]="usersForAllocationSource.bind(this)" 
+                                   [accept-user-input]="false" 
+                                   [disabled]="!ras.Permission.Edit"
+                                   [min-chars]="2"
+                                   [(ngModel)]="rasPartner" 
+                                   (valueChanged)="selectUser($event, 'partner')" 
+                                   #rasPartnerControl="ngModel">
+                            <a href="javascript:;" (click)="clearPartner()" title="Clear" class="clear-button" *ngIf="rasPartner&&rasPartner.Name">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 tar">Last Worked FY</label>
+                        <select [disabled]="!ras.Permission.Edit" class="col-sm-6 form-control" [(ngModel)]="ras.PartnerMember.LastWorkedFinancialYearId" name="partnerLastWorkFY">
+                            <option value=""></option>
+                            <option *ngFor="let fy of dictionaries.financialYears" [ngValue]="fy.FinancialYearId">
+                                {{fy.Name}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 tar">Worked Years</label>
+                        <div [ngClass]="{'col-sm-6':true, 'has-error': !partnerWorkedYears.valid && partnerWorkedYears.touched, 'has-success': partnerWorkedYears.valid && partnerWorkedYears.touched}">
+                            <input [disabled]="!ras.Permission.Edit" type="text" number [gte]="0" [(ngModel)]="ras.PartnerMember.WorkedYears" name="partnerWorkedYears" class="form-control" #partnerWorkedYears="ngModel" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2">
+                        <label>RAS Manager</label>
+                    </div>
+                    <div class="col-sm-4 with-clear-button">
+                        <div [ngClass]="{'has-error': !mangerControl.valid, 'has-success': mangerControl.valid && mangerControl.touched}">
+                            <input class="form-control" 
+                                   name="rasMangerControl" 
+                                   placeholder="Enter Manager Name"
+                                   required
+                                   auto-complete 
+                                   list-formatter="Name" 
+                                   display-property-name="Name" 
+                                   [source]="usersForAllocationSource.bind(this)" 
+                                   [accept-user-input]="false" 
+                                   [disabled]="!ras.Permission.Edit"
+                                   [min-chars]="2"
+                                   [(ngModel)]="rasManager" 
+                                   (valueChanged)="selectUser($event, 'manager')" 
+                                   #mangerControl="ngModel">
+                            <a href="javascript:;" (click)="clearManager()" title="Clear" class="clear-button" *ngIf="rasManager&&rasManager.Name">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 tar">Last Worked FY</label>
+                        <select [disabled]="!ras.Permission.Edit" class="col-sm-6 form-control" [(ngModel)]="ras.ManagerMember.LastWorkedFinancialYearId" name="mangerLastWorkFY">
+                            <option value=""></option>
+                            <option *ngFor="let fy of dictionaries.financialYears" [ngValue]="fy.FinancialYearId">
+                                {{fy.Name}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-sm-6 tar">Worked Years</label>
+                        <div [ngClass]="{'col-sm-6':true, 'has-error': !mangerWorkedYears.valid && mangerWorkedYears.touched, 'has-success': mangerWorkedYears.valid && mangerWorkedYears.touched}">
+                            <input [disabled]="!ras.Permission.Edit" type="text" number [gte]="0" [(ngModel)]="ras.ManagerMember.WorkedYears" name="mangerWorkedYears" class="form-control" #mangerWorkedYears="ngModel" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2">Scope of RAS work</label>
+                    <div [ngClass]="{'col-sm-10': true, 'has-error': !rasModel.valid && rasModel.touched, 'has-success': rasModel.valid && rasModel.touched}">
+                        <input type="text" class="col-xs-12 form-control" name="rasModel" #rasModel="ngModel" [(ngModel)]="ras.ScopeOfWork" maxlength="200" [disabled]="!ras.Permission.Edit">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

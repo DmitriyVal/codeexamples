@@ -1,0 +1,186 @@
+﻿<modal-window [hidden]="!error" title="Error" [body]="errorBody" (closeWindow)="closeErrorModal()">
+</modal-window>
+
+<modal-window [hidden]="!message" title="Message" [body]="messageBody" (closeWindow)="closeMessageModal()">
+</modal-window>
+
+<hidden-columns-modal [hidden]="!showHidden" [key]="key" [gridOptions]="gridOptions" (closeWindow)="showHidden = false;">
+</hidden-columns-modal>
+
+
+<h2><img src="/wwwroot/dist/assets/images/icons-heading/ico-employees.png" alt="" />Employees</h2>
+<div class="row columns">
+    <div class="col-sm-6">
+        <div class="row">
+            <label class="col-sm-3">Name</label>
+            <input class="col-sm-7" [(ngModel)]="FullName" type="text" placeholder="Enter Employee Name">
+        </div>
+        <div class="row">
+            <label class="col-sm-3">Grade</label>
+            <select class="col-sm-7" [(ngModel)]="Grade">
+                <option value=""></option>
+                <option *ngFor="let grade of filters.grades" [ngValue]="grade">{{grade.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-3">Staff number</label>
+            <input class="col-sm-7" [(ngModel)]="StaffNumber" type="text" placeholder="Enter Staff number">
+        </div>
+        <div class="row">
+            <label class="col-sm-3">Territory</label>
+            <select class="col-sm-7" [(ngModel)]="Territory">
+                <option value=""></option>
+                <option *ngFor="let territory of filters.territories" [ngValue]="territory">{{territory.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-3">Line of Service</label>
+            <select class="col-sm-7" [(ngModel)]="LineOfService">
+                <option value=""></option>
+                <option *ngFor="let lineOS of filters.linesOS" [ngValue]="lineOS">{{lineOS.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-3">Business Unit<span class="tips mini" title="Select Territory and Line of Service ">?</span></label>
+            <select class="col-sm-7" [(ngModel)]="BusinessUnit">
+                <option value=""></option>
+                <option *ngFor="let bu of businessUnits;trackBy:bu?.BusinessUnitId" [ngValue]="bu">{{bu.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-3">Office<span class="tips mini" title="Select Territory">?</span></label>
+            <select class="col-sm-7" [(ngModel)]="Office">
+                <option value=""></option>
+                <option *ngFor="let o of offices" [ngValue]="o">{{o.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-3">Available for allocation</label>
+            <select class="col-sm-7" [(ngModel)]="AvailableForAllocation">
+                <option value=""></option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="row" [ngClass]="{'has-error': !isDateValid(MinJoiningDate,MaxJoiningDate)}">
+            <label class="col-sm-3">Joining date</label>
+            <div class="col-sm-2 tar">from:</div>
+            <div class="col-sm-3 no-padding-left no-padding-right">
+                <input  class="form-control" [options]="datePickerOptions" [(ngModel)]="MinJoiningDate" ngx-mydatepicker #minjd="ngx-mydatepicker" (click)="minjd.toggleCalendar()" [title]="dateErrorMessage(MinJoiningDate,MaxJoiningDate)" />
+            </div>
+            <div class="col-sm-1">to:</div>
+            <div class="col-sm-3 no-padding-left no-padding-right">
+                <input class="form-control" [options]="datePickerOptions" [(ngModel)]="MaxJoiningDate" ngx-mydatepicker #maxjd="ngx-mydatepicker" (click)="maxjd.toggleCalendar()"  [title]="dateErrorMessage(MinJoiningDate,MaxJoiningDate)" />
+            </div>
+        </div>
+        <div class="row" [ngClass]="{'has-error': !isDateValid(MinLeavingDate,MaxLeavingDate)}">
+            <label class="col-sm-3">Leaving date</label>
+            <div class="col-sm-2 tar">from:</div>
+            <div class="col-sm-3 no-padding-left no-padding-right">
+                <input class="form-control" [options]="datePickerOptions" [(ngModel)]="MinLeavingDate" ngx-mydatepicker #minld="ngx-mydatepicker" (click)="minld.toggleCalendar()" [title]="dateErrorMessage(MinLeavingDate,MaxLeavingDate)" />
+            </div>
+            <div class="col-sm-1">to:</div>
+            <div class="col-sm-3 no-padding-left no-padding-right">
+                <input class="form-control" [options]="datePickerOptions" [(ngModel)]="MaxLeavingDate" ngx-mydatepicker #maxld="ngx-mydatepicker" (click)="maxld.toggleCalendar()" [title]="dateErrorMessage(MinLeavingDate,MaxLeavingDate)" />
+            </div>
+        </div>
+        <div class="row" [ngClass]="{'has-error': !isDateValid(MinReturnDate,MaxReturnDate)}">
+            <label class="col-sm-3">Return from leave date</label>
+            <div class="col-sm-2 tar">from:</div>
+            <div class="col-sm-3 no-padding-left no-padding-right">
+                <input class="form-control" [options]="datePickerOptions" [(ngModel)]="MinReturnDate" ngx-mydatepicker #minrd="ngx-mydatepicker" (click)="minrd.toggleCalendar()" [title]="dateErrorMessage(MinReturnDate,MaxReturnDate)" />
+            </div>
+            <div class="col-sm-1">to:</div>
+            <div class="col-sm-3 no-padding-left no-padding-right">
+                <input class="form-control" [options]="datePickerOptions" [(ngModel)]="MaxReturnDate" ngx-mydatepicker #maxrd="ngx-mydatepicker" (click)="maxrd.toggleCalendar()" [title]="dateErrorMessage(MinReturnDate,MaxReturnDate)" />
+			</div>
+		</div>
+        <div class="row">
+            <label class="col-sm-5">Audit licenses</label>
+            <audit-license-control [(ngModel)]="AuditLicenses" [licenseList]="auditLicenses">
+            </audit-license-control>
+        </div>
+		<div class="row">
+			<label class="col-sm-5">Expertise</label>
+			<input class="col-sm-7" type="text" [(ngModel)]="Expertise" placeholder="Enter Expertise">
+		</div>
+		<div class="row">
+			<label class="col-sm-5">Status</label>
+			<select class="col-sm-7" [(ngModel)]="UserStatus">
+				<option value=""></option>
+				<option *ngFor="let st of filters.statuses" [ngValue]="st">{{st.Name}}</option>
+			</select>
+		</div>
+		<div class="row">
+			<label class="col-sm-5">Can sign an audit opinion</label>
+			<select class="col-sm-7" [(ngModel)]="CanSignAuditOpinion">
+				<option value=""></option>
+				<option value="true">Yes</option>
+				<option value="false">No</option>
+			</select>
+		</div>
+		<div class="row">
+			<div class="subnav">
+				<ul *ngIf="CanAddEmployee">
+					<li><a routerLink="/employee" class="btn btn--secondary btn--transparent">Add Employee</a></li>
+				</ul>
+				<ul>
+					<li><button type="button" [disabled]="isFilterUnvalid" (click)="filter()" class="btn btn--primary">Search</button></li>
+					<li><button type="button" (click)="clear()" class="btn btn--secondary btn--transparent">Clear</button></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-12">
+        <div class="charts">
+            <button class="btn btn--secondary btn--transparent" type="button" (click)="showHidden = true">Columns management</button>
+            <ag-grid-angular #agGrid style="width: 100%; height: 610px" class="ag-fresh"
+                             [gridOptions]="gridOptions">
+            </ag-grid-angular>
+        </div>
+        <div *ngIf="CanAddEmployee">
+            Assign access role to employee
+        </div>
+        <div class="row" *ngIf="CanAddEmployee">
+            <div class="col-sm-3">
+                <div class="row">
+                    <label class="col-sm-5">Territory</label>
+                    <select class="col-sm-7" [(ngModel)]="RoleAssignTerritory" (change)="RoleAssignBusinessUnit = null">
+                        <option value=""></option>
+                        <option *ngFor="let territory of filters.territories" [ngValue]="territory">{{territory.Name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-5 tar">Business Unit</label>
+                    <select class="col-sm-7" [(ngModel)]="RoleAssignBusinessUnit">
+                        <option value=""></option>
+                        <option *ngFor="let bu of roleAssignBusinessUnits" [ngValue]="bu">{{bu.Name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="row">
+                    <label class="col-sm-5 tar">Role</label>
+                    <select class="col-sm-7" [(ngModel)]="RoleAssignSystemRole">
+                        <option value=""></option>
+                        <option *ngFor="let sr of filters.systemRoles" [ngValue]="sr">{{sr.Name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <div class="row tar">
+                    <a href="javascript:;" (click)="AssignRole()">Assign</a>
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <div class="row tar">
+                    <a href="javascript:;" (click)="RemoveRole()">Remove</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

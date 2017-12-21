@@ -1,0 +1,6 @@
+﻿.has-error .form-control {
+    border: 2px solid #e0301e;
+    padding-right: 40px;
+    background: #fff url(/wwwroot/dist/assets/images/pwc-forms-icons/icon-alert-2.svg) right 10px center no-repeat;
+    background-size: 24px 24px;
+}

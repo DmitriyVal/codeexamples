@@ -1,0 +1,191 @@
+﻿<!-- custom HTML -->
+<modal-window [hidden]="!error" title="Error" [body]="errorBody" (closeWindow)="closeErrorModal()">
+</modal-window>
+
+<modal-window [hidden]="!message" title="Message" [body]="messageBody" (closeWindow)="closeMessageModal()">
+</modal-window>
+
+<hidden-columns-modal [hidden]="!showHidden" key="jobList" [gridOptions]="gridOptions" (closeWindow)="showHidden = false;">
+</hidden-columns-modal>
+
+<h2><img src="/wwwroot/dist/assets/images/icons-heading/ico-job-list.png" alt="">Jobs</h2>
+<div class="row columns pwc-forms">
+    <div class="col-sm-6">
+        <div class="row">
+            <label class="col-sm-4">Name</label>
+            <input class="col-sm-7" type="text" [(ngModel)]="Name" placeholder="Enter Job Name">
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Job Code</label>
+            <input class="col-sm-7" type="text" [(ngModel)]="JobCode" placeholder="Enter Job Code">
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Financial Year</label>
+            <select class="col-sm-7" [(ngModel)]="FinancialYear">
+                <option value=""></option>
+                <option *ngFor="let fy of filters.financialyears" [ngValue]="fy">{{fy.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Territory</label>
+            <select class="col-sm-7" [(ngModel)]="Territory">
+                <option value=""></option>
+                <option *ngFor="let territory of filters.territories" [ngValue]="territory">{{territory.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Line of Service</label>
+            <select class="col-sm-7" [(ngModel)]="LineOfService">
+                <option value=""></option>
+                <option *ngFor="let lineOS of filters.linesOS" [ngValue]="lineOS">{{lineOS.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Business Unit<span class="tips mini" title="Select Territory and Line of Service ">?</span></label>
+            <select class="col-sm-7" [(ngModel)]="BusinessUnit">
+                <option value=""></option>
+                <option *ngFor="let bu of businessUnits" [ngValue]="bu">{{bu.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Operations Unit<span class="tips mini" title="Select Business Unit ">?</span></label>
+            <select class="col-sm-7" [(ngModel)]="OperationUnit">
+                <option value=""></option>
+                <option *ngFor="let ou of operationUnits" [ngValue]="ou">{{ou.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Office<span class="tips mini" title="Select Territory">?</span></label>
+            <select class="col-sm-7" [(ngModel)]="Office">
+                <option value=""></option>
+                <option *ngFor="let o of offices" [ngValue]="o">{{o.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Industry</label>
+            <select class="col-sm-7" [(ngModel)]="Industry">
+                <option value=""></option>
+                <option *ngFor="let industry of filters.industries" [ngValue]="industry">{{industry.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <label class="col-sm-4">Has non-addressed comments</label>
+            <select class="col-sm-7" [(ngModel)]="HasNonAddressedComments">
+                <option value=""></option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="row">
+            <label class="col-sm-5">Client Name</label>
+            <input class="col-sm-7" type="text" [(ngModel)]="ClientName" placeholder="Enter Client Name">
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Client Code</label>
+            <input class="col-sm-7" type="text" [(ngModel)]="ClientCode" placeholder="Enter Client Code">
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Ultimate Head Client</label>
+            <input class="col-sm-7" type="text" [(ngModel)]="UltimateHeadClient" placeholder="Enter Ultimate Head Client">
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Fee on local currency</label>
+            <input class="col-sm-3" type="text" value="" myCurrencyFormatter [(ngModel)]="MinFeeOnLocalCurrency" name="MinFeeOnLocalCurrency" [gte]="0">
+            <div class="col-sm-1">-</div>
+            <input class="col-sm-3" type="text" value="" myCurrencyFormatter [(ngModel)]="MaxFeeOnLocalCurrency" name="MaxFeeOnLocalCurrency" [gte]="MinFeeOnLocalCurrency">
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Total engagement hours</label>
+            <input class="col-sm-3" type="text" value="" myCurrencyFormatter [(ngModel)]="MinTotalEngagementHours" name="MinTotalEngagementHours" [gte]="0">
+
+            <div class="col-sm-1">-</div>
+            <input class="col-sm-3" type="text" value="" myCurrencyFormatter [(ngModel)]="MaxTotalEngagementHours" name="MaxTotalEngagementHours" [gte]="MinTotalEngagementHours">
+
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Total audit hours</label>
+            <input class="col-sm-3" type="text" value="" myCurrencyFormatter [(ngModel)]="MinTotalAuditHours" name="MinTotalAuditHours" [gte]="0">
+            <div class="col-sm-1">-</div>
+            <input class="col-sm-3" type="text" value="" myCurrencyFormatter [(ngModel)]="MaxTotalAuditHours" name="MaxTotalAuditHours" [gte]="MinTotalAuditHours">
+
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Unallocated</label>
+            <input type="checkbox" [(ngModel)]="Unallocated">
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Hidden</label>
+            <input type="checkbox" [disabled]="!Unallocated" [(ngModel)]="Hidden">
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Employee Name</label>
+            <div class="col-sm-7 with-clear-button" style="padding-left:0px; padding-right:0px;">
+                <input name="employeeName" 
+                       placeholder="Enter Employee Name"
+                       auto-complete 
+                       list-formatter="Name"                        
+                       display-property-name="Name" 
+                       [source]="getUsers.bind(this)" 
+                       [accept-user-input]="false" 
+                       [min-chars]="3"
+                       [(ngModel)]="Employee" 
+                       (valueChanged)="getRoles($event, 'Name')"
+                       #employeeName="ngModel">
+                <a href="javascript:;" (click)="clearEmployee()" title="Clear" class="clear-button" *ngIf="Employee&&Employee.Name">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-sm-5">Role<span class="tips mini" title="Select Employee Name">?</span></label>
+            <select class="col-sm-7" [(ngModel)]="Role" [disabled]="!Employee || !Employee.UserId || Employee.UserId == 0">
+                <option value=""></option>
+                <option *ngFor="let role of filters.roles" [ngValue]="role">{{role.Name}}</option>
+            </select>
+        </div>
+        <div class="row">
+            <div class="subnav">
+                <ul *ngIf="canEdit">
+                    <li><a routerLink="/job" class="btn btn--secondary btn--transparent">Add job</a></li>
+                </ul>
+
+                <ul>
+                    <li><button type="button" (click)="filter()" class="btn btn--primary">Search</button></li>
+                    <li>
+                        <a href="#" class="btn btn--secondary btn--transparent">Notify</a>
+                        <ul>
+                            <li *ngFor="let role of filters.roles">
+                                <a (click)="notify(role.TeamRoleId)">{{role.Name}}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><button type="button" (click)="clear()" class="btn btn--secondary btn--transparent">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12">
+        <div class="charts">
+            <button class="btn btn--secondary btn--transparent" type="button" (click)="showHidden = true">Columns management</button>
+            <ag-grid-angular #agGrid style="width: 100%; height: 600px" class="ag-fresh"
+                             [gridOptions]="gridOptions">
+            </ag-grid-angular>
+        </div>
+    </div>
+    <div class="col-xs-12">
+        <div class="row">
+            <div class="subnav">
+                <button *ngIf="canEdit" type="button" class="btn btn--secondary btn--transparent" style="float: none" (click)="Delete()">Delete</button>
+                <ul>
+                    <li *ngIf="canEdit"><button type="button" (click)="CloneJobToFY()" class="btn btn--secondary btn--transparent">Copy to next FY</button></li>
+                    <li><button type="button" (click)="GetJobsListExcel()" class="btn btn--secondary btn--transparent">Export</button></li>
+                    <li *ngIf="canEdit"><button type="button" [disabled]="allocating" (click)="AllocateJobList()" class="btn btn--secondary btn--transparent">Allocate</button></li>
+                    <li *ngIf="canEdit"><button type="button" (click)="HideJobList()" class="btn btn--secondary btn--transparent">Hide/Unhide</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END of editing custom HTML -->

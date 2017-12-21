@@ -1,0 +1,335 @@
+﻿<div *ngIf="entity">
+    <!-- custom HTML -->
+    <div class="subnav">
+        <ul>
+            <li [hidden]="!permissions.saveButtonVisible"><button type="button" class="btn btn--primary" [disabled]="isInSaving || !entityForm.form.valid" (click)="saveEntity()">Save</button></li>
+            <li [hidden]="!permissions.canDelete"><button type="button" class="btn btn--secondary btn--transparent" [disabled]="isInSaving" (click)="deleteEntity()">Delete</button></li>
+            <li [hidden]="!permissions.canAdd"><button type="button" class="btn btn--secondary btn--transparent" [disabled]="isInSaving" (click)="addEntity()">Add Entity</button></li>
+            <li [hidden]="!permissions.saveButtonVisible"><button type="button" class="btn btn--secondary btn--transparent" [disabled]="!entityForm.form.dirty && !isNew" (click)="cancel()">Cancel</button></li>
+        </ul>
+    </div>
+    <div class="row columns">
+        <div class="col-sm-12" [hidden]="jobEntities.length < 2">
+            <div class="row">
+                <div class="subnav level3">
+                    <ul>
+                        <li *ngFor="let jobEntity of jobEntities"><a [ngClass]="{'active': jobEntity == entity}" (click)="navigateToEntity(jobEntity)">{{jobEntity.EntityName}}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <form class="pwc-forms" #entityForm="ngForm">
+            <div [hidden]="true">
+                <button name="submit-form" type="submit" class="btn btn--primary" [disabled]="isInSaving || !entityForm.form.valid">Save</button>
+            </div>
+            <div class="col-sm-8">
+                <div class="row" [ngClass]="{'has-error': !entityName.valid && entityName.touched, 'has-success': entityName.valid && entityName.touched}">
+                    <label class="col-sm-3">Entity name</label>
+                    <input class="col-sm-6 form-control" required maxlength="50" [disabled]="!permissions.canEdit || (jobEntities.length < 2 && entity.ReadOnly)" type="text" [(ngModel)]="entity.EntityName" name="EntityName" #entityName="ngModel">
+                    <a *ngIf="entity.PreviousEntityId" class="col-sm-1" [routerLink]="['/job',job.PreviousJobId,'entities',entity.PreviousEntityId]">previous</a>
+                </div>
+                <div class="row">
+                    <label class="col-sm-3">Status of team allocation</label>
+                    <select class="col-sm-6" [disabled]="!permissions.canEditStatus" [(ngModel)]="entity.EntityStatusId" name="EntityStatus">
+                        <option value=""></option>
+                        <option *ngFor="let status of dictionaries.statuses" [ngValue]="status.EntityStatusId">
+                            {{status.Name}}
+                        </option>
+                    </select>
+                </div>
+                <div class="row" [ngClass]="{'has-error': !fee.valid && fee.touched, 'has-success': fee.valid && fee.touched}">
+                    <label class="col-sm-3">Fee in Local currency</label>
+                    <input class="col-sm-6 form-control" [disabled]="!permissions.canEditEntitiesAmountDependingFields" type="text" myCurrencyFormatter [ngModel]="entity.FeeInLocalCurrency" name="Fee" #fee="ngModel">
+                </div>
+                <div class="row" [ngClass]="{'has-error': !totalEngHours.valid && totalEngHours.touched, 'has-success': totalEngHours.valid && totalEngHours.touched}">
+                    <label class="col-sm-3">Total engagement hours</label>
+                    <input class="col-sm-6 form-control" [disabled]="!permissions.canEditEntitiesAmountDependingFields" type="text" myCurrencyFormatter [(ngModel)]="entity.TotalEngagementHours" name="TotalEngagementHours" #totalEngHours="ngModel">
+                </div>
+                <div class="row" [ngClass]="{'has-error': !totalAuditHours.valid && totalAuditHours.touched, 'has-success': totalAuditHours.valid && totalAuditHours.touched}">
+                    <label class="col-sm-3">Total audit hours</label>
+                    <input class="col-sm-6 form-control" [disabled]="!permissions.canEditEntitiesAmountDependingFields" type="text" myCurrencyFormatter [(ngModel)]="entity.TotalAuditHours" name="TotalAuditHours" #totalAuditHours="ngModel">
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <label class="col-sm-5">Firm PIE</label>
+                    <span class="col-sm-7">
+                        <input [disabled]="!permissions.canEdit || (jobEntities.length < 2 && entity.ReadOnly)" type="checkbox" [(ngModel)]="entity.FirmPie" name="IsFirmPie" (ngModelChange)="onQrpRequiredRelatedChange($event)">
+                    </span>
+                </div>
+                <div class="row">
+                    <label class="col-sm-5">Statutury PIE</label>
+                    <span class="col-sm-7">
+                        <input [disabled]="!permissions.canEdit" type="checkbox" [(ngModel)]="entity.StatutoryPIE" name="IsStatuturyPie" (ngModelChange)="onQrpRequiredRelatedChange($event)">
+                    </span>
+                </div>
+                <div class="row">
+                    <label class="col-sm-5">Risk rating</label>
+                    <select [disabled]="!permissions.canEdit" class="col-sm-7" [(ngModel)]="entity.RiskRatingId" name="RiskRating" (ngModelChange)="onQrpRequiredRelatedChange($event == 1)">
+                        <option value=""></option>
+                        <option *ngFor="let risk of dictionaries.riskRatings" [ngValue]="risk.RiskRatingId">
+                            {{risk.Name}}
+                        </option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label class="col-sm-5">Listed</label>
+                    <span class="col-sm-7">
+                        <input [disabled]="!permissions.canEdit || (jobEntities.length < 2 && entity.ReadOnly) " type="checkbox" [(ngModel)]="entity.Listed" name="IsListed" (ngModelChange)="onQrpRequiredRelatedChange($event)">
+                    </span>
+                </div>
+                <div class="row">
+                    <label class="col-sm-5">HPC</label>
+                    <span class="col-sm-7">
+                        <input [disabled]="!permissions.canEdit" type="checkbox" [(ngModel)]="entity.Hpc" name="IsHpc" (ngModelChange)="onQrpRequiredRelatedChange($event)">
+                    </span>
+                </div>
+                <div class="row">
+                    <label class="col-sm-5">SEC restricted</label>
+                    <span class="col-sm-7">
+                        <input [disabled]="!permissions.canEdit || (jobEntities.length < 2 && entity.ReadOnly)" type="checkbox" [(ngModel)]="entity.SecRestricted" name="IsSecRestricted" (ngModelChange)="onQrpRequiredRelatedChange($event)">
+                    </span>
+                </div>
+                <div class="row">
+                    <label class="col-sm-5">PCAOB</label>
+                    <span class="col-sm-7">
+                        <input [disabled]="!permissions.canEdit || (jobEntities.length < 2 && entity.ReadOnly)" type="checkbox" [(ngModel)]="entity.Pcaob" name="IsPcaob" (ngModelChange)="onQrpRequiredRelatedChange($event)">
+                    </span>
+                </div>
+                <div class="row">
+                    <label class="col-sm-5">QRP required</label>
+                    <span class="col-sm-7">
+                        <input [disabled]="!permissions.canEdit" type="checkbox" [(ngModel)]="entity.QrpRequired" name="IsQrpRequired">
+                    </span>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <h4>Roles</h4>
+                <div class="grid">
+                    <table>
+                        <colgroup>
+                            <col style="width:30%">
+                            <col style="width:30%">
+                            <col style="width:10%">
+                            <col style="width:10%">
+                            <col style="width:10%">
+                            <col style="width:100px">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Employee</th>
+                                <th>Last Worked FY</th>
+                                <th>Worked Years</th>
+                                <th>Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let role of entity.EntityMembers; let roleIndex = index;">
+                                <td>{{role.RoleName}}</td>
+                                <td>
+                                    <div class="with-clear-button">
+                                        <input name="roleUserAuto-{{roleIndex}}"
+                                               class="form-control" 
+                                               auto-complete
+                                               list-formatter="Name" 
+                                               display-property-name="UserName" 
+                                               auto-complete-placeholder="Select user" 
+                                               [disabled]="!permissions.canEdit" 
+                                               [ngModel]="role.UserName == ''||role.UserName == null||role.UserName == undefined ? '' : role" 
+                                               [source]="usersForAllocationSource.bind(this)" 
+                                               [accept-user-input]="false" 
+                                               [min-chars]="2"
+                                               (valueChanged)="usersForAllocationSelected(role, $event)" 
+                                               #roleUserVisible="ngModel">
+                                        <a href="javascript:;" (click)="clearEntityMember(role)" title="Clear role" class="clear-button" *ngIf="role.UserName">                                            
+                                            <i class="fa fa-times" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <select [disabled]="!permissions.canEdit || role.ReadOnly" class="form-control" [(ngModel)]="role.LastWorkedFinancialYearId" name="roleLastFinancialYear-{{roleIndex}}">
+                                        <option value=""></option>
+                                        <option *ngFor="let fy of dictionaries.financialYears" [ngValue]="fy.FinancialYearId">
+                                            {{fy.Name}}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <div [ngClass]="{'has-error': !roleYears.valid && roleYears.touched, 'has-success': roleYears.valid && roleYears.touched}">
+                                        <input [disabled]="!permissions.canEdit || role.ReadOnly" type="text" number [gte]="0" [(ngModel)]="role.WorkedYears" name="roleWorkedYears-{{roleIndex}}" class="form-control" [ngClass]="{'workload-limit-exceeded': role.RotationRuleViolated}" #roleYears="ngModel" (change)="WorkedYearsChanged(role, $event)" />
+                                    </div>
+                                </td>
+                                <td>{{role.Hours}}</td>
+                                <td [hidden]="!permissions.canEdit"><a href="javascript:;" (click)="removeEntityMember(role)" [hidden]="!canRemoveEntityMember(role)">Remove</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row" [hidden]="!permissions.canEdit">
+                    <span class="col-sm-3">
+                        <select class="form-control" [(ngModel)]="teamRoleToAdd" name="teamRoleToAdd">
+                            <option [ngValue]="null"></option>
+                            <option *ngFor="let role of getAvailableRoles()" [ngValue]="role">
+                                {{role.Name}}
+                            </option>
+                        </select>
+                    </span>
+                    <span class="col-sm-1">
+                        <button type="button" class="btn btn--secondary btn--transparent" (click)="AddEntityMember()" [disabled]="!teamRoleToAdd">
+                            +
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </form>
+        <form class="pwc-forms" #scopesForm="ngForm">
+            <div class="col-xs-12">
+                <div class="grid">
+                    <table>
+                        <colgroup>
+                            <col style="width:25%">
+                            <col style="width:25%">
+                            <col style="width:40%">
+                            <col style="width:10%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Scope</th>
+                                <th>Reporting Deadline</th>
+                                <th>Entity Name/Deliverable</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let scope of entity.EntityScopes">
+                                <td>{{scope.ScopeName}}</td>
+                                <td>{{scope.ReportingDeadline | date: datePipeFormat}}</td>
+                                <td>{{scope.Deliverable}}</td>
+                                <td [hidden]="!permissions.canEdit" align="center"><a href="javascript:;" (click)="removeScope(scope)">Remove</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row" [hidden]="!permissions.canEdit">
+                    <div class="col-sm-3" [ngClass]="{'has-error': !newScopeScope.valid && newScopeScope.touched, 'has-success': newScopeScope.valid && newScopeScope.touched}">
+                        <span>
+                            <select class="form-control" required [(ngModel)]="newScope" name="newScopeScope" #newScopeScope="ngModel">
+                                <option *ngFor="let scope of dictionaries.scopes" [ngValue]="scope">
+                                    {{scope.Name}}
+                                </option>
+                            </select>
+                        </span>
+                    </div>
+                    <div class="col-sm-3" [ngClass]="{'has-error': !newScopeDateControl.valid && newScopeDateControl.touched, 'has-success': newScopeDateControl.valid && newScopeDateControl.touched}">
+                        <span>
+                            <input class="form-control" [options]="datePickerOptions" [(ngModel)]="newScopeDate" required name="newScopeDate" #newScopeDateControl="ngModel" ngx-mydatepicker #dp="ngx-mydatepicker" (click)="dp.toggleCalendar()" />
+                        </span>
+                    </div>
+                    <div class="col-sm-5" [ngClass]="{'has-error': !newScopeDeliverableControl.valid && newScopeDeliverableControl.touched, 'has-success': newScopeDeliverableControl.valid && newScopeDeliverableControl.touched}">
+                        <span>
+                            <input class="form-control" [(ngModel)]="newScopeDeliverable" required name="newScopeDeliverable" #newScopeDeliverableControl="ngModel" />
+                        </span>
+                    </div>
+                    <span class="col-sm-1">
+                        <button type="button" class="btn btn--secondary btn--transparent" [disabled]="!scopesForm.form.valid" (click)="AddNewScope()">
+                            Add
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-12" [hidden]="!permissions.canAddRiskComments">
+            <!--<div class="r-side">
+                <h4>Risk management comments</h4>
+                <div>
+                    <textarea class="col-sm-12 form-control" [(ngModel)]="riskCommentValue"></textarea>
+                </div>
+                <button type="button" class="btn btn--secondary btn--transparent" (click)="AddComment(entity.RiskComments, riskCommentValue); riskCommentValue='';" [disabled]="!currentUser || !riskCommentValue">
+                    Add
+                </button>
+            </div>-->
+            <h4>Risk management comments</h4>
+            <div class="row">
+                <textarea class="col-sm-12 form-control" [(ngModel)]="riskCommentValue"></textarea>
+            </div>
+            <div class="row r-side">
+                <button type="button" class="btn btn--secondary btn--transparent" (click)="AddComment(entity.RiskComments, riskCommentValue); riskCommentValue='';" [disabled]="!currentUser || !riskCommentValue">
+                    Add
+                </button>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="grid">
+                <table>
+                    <colgroup>
+                        <col style="width:30%">
+                        <col style="width:30%">
+                        <col style="width:30%">
+                        <col style="width:70px" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Date/Time</th>
+                            <th>Comment</th>
+                            <th>Addressed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let comment of entity.RiskComments">
+                            <td>{{comment.CreatedByName}}</td>
+                            <td>{{comment.CreatedOn | date: dateTimePipeFormat}}</td>
+                            <td>{{comment.Text}}</td>
+                            <td [hidden]="!permissions.canAddressRiskComments">
+                                <input type="checkbox" name="riskCommentIsAddressed" [(ngModel)]="comment.IsAddressed" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-xs-12" [hidden]="!permissions.canAddPlannerComments">
+            <div class="r-side">
+                <h4>Planner comments</h4>
+                <div>
+                    <textarea class="col-sm-12 form-control" [(ngModel)]="plannerCommentValue"></textarea>
+                </div>
+                <button type="button" class="btn btn--secondary btn--transparent" (click)="AddComment(entity.PlannerComments, plannerCommentValue); plannerCommentValue = '';" [disabled]="!currentUser || !plannerCommentValue">
+                    Add
+                </button>
+            </div>
+        </div>
+        <div class="col-xs-12" [hidden]="!permissions.canViewPlannerComments">
+            <div class="grid">
+                <table>
+                    <colgroup>
+                        <col style="width:30%">
+                        <col style="width:30%">
+                        <col style="width:40%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Date/Time</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let comment of entity.PlannerComments">
+                            <td>{{comment.CreatedByName}}</td>
+                            <td>{{comment.CreatedOn | date: dateTimePipeFormat}}</td>
+                            <td>{{comment.Text}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="r-side">
+                <p></p>
+            </div>
+        </div>
+    </div>
+    <!-- END of editing custom HTML -->
+</div>

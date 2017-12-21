@@ -1,0 +1,19 @@
+﻿input.ng-invalid {
+    border: 2px solid #e0301e;
+    padding-right: 40px;
+    background: #fff url("/wwwroot/dist/assets/images/pwc-forms-icons/icon-alert-2.svg") right 10px center no-repeat;
+    background-size: 24px 24px;
+}
+
+.with-clear-button{
+    position:relative;
+}
+.with-clear-button input{
+    padding-right:40px;
+}
+.clear-button{
+    position:absolute;
+    top:0px;
+    right:10px;
+    color:#808080;
+}

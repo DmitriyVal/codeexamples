@@ -1,0 +1,18 @@
+﻿.with-clear-button{
+    position:relative;
+}
+.with-clear-button input{
+    padding-right:40px;
+}
+.with-clear-button .has-success input{
+    padding-right:60px;
+}
+.clear-button{
+    position:absolute;
+    top:0px;
+    right:25px;
+    color:#808080;
+}
+.has-success .clear-button{
+    right:60px;
+}
